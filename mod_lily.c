@@ -128,7 +128,7 @@ This contains key+value pairs containing the current environment of the server.
 */
 static lily_value *load_var_env(lily_options *options, uint16_t *dyna_ids)
 {
-    request_rec *r = (request_rec *)options->data;
+    request_rec *r = (request_rec *)lily_op_get_data(options);
     ap_add_cgi_vars(r);
     ap_add_common_vars(r);
 
@@ -144,7 +144,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 static lily_value *load_var_get(lily_options *options, uint16_t *dyna_ids)
 {
     apr_table_t *http_get_args;
-    ap_args_to_table((request_rec *)options->data, &http_get_args);
+    ap_args_to_table((request_rec *)lily_op_get_data(options), &http_get_args);
 
     return bind_table_as(http_get_args, "get", DYNA_ID_Tainted(dyna_ids));
 }
@@ -157,7 +157,7 @@ Common values are "GET", and "POST".
 */
 static lily_value *load_var_httpmethod(lily_options *options, uint16_t *unused)
 {
-    request_rec *r = (request_rec *)options->data;
+    request_rec *r = (request_rec *)lily_op_get_data(options);
 
     return lily_new_value_of_string(lily_new_string(r->method));
 }
@@ -170,7 +170,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 */
 static lily_value *load_var_post(lily_options *options, uint16_t *dyna_ids)
 {
-    request_rec *r = (request_rec *)options->data;
+    request_rec *r = (request_rec *)lily_op_get_data(options);
 
     apr_array_header_t *pairs;
     apr_off_t len;
@@ -295,10 +295,10 @@ static int lily_handler(request_rec *r)
     lily_config_rec *conf = (lily_config_rec *)ap_get_module_config(
             r->per_dir_config, &lily_module);
 
-    lily_options *options = lily_new_default_options();
-    options->data = r;
-    options->html_sender = (lily_html_sender) ap_rputs;
-    options->allow_sys = 0;
+    lily_options *options = lily_new_options();
+    lily_op_data(options, r);
+    lily_op_html_sender(options, (lily_html_sender) ap_rputs);
+    lily_op_allow_sys(options, 0);
 
     lily_state *state = lily_new_state(options);
     register_server(state);
