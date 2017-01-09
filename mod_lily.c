@@ -297,7 +297,7 @@ static int lily_handler(request_rec *r)
 
     lily_options *options = lily_new_options();
     lily_op_data(options, r);
-    lily_op_html_sender(options, (lily_html_sender) ap_rputs);
+    lily_op_render_func(options, (lily_render_func) ap_rputs);
     lily_op_allow_sys(options, 0);
 
     lily_state *state = lily_new_state(options);

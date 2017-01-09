@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project("lily-apache")
 
+message("${CMAKE_INSTALL_PREFIX}/include/lily/")
 include_directories("${CMAKE_INSTALL_PREFIX}/include/lily/")
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
