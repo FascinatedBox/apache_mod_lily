@@ -303,7 +303,7 @@ static int lily_handler(request_rec *r)
     lily_state *state = lily_new_state(options);
     register_server(state);
 
-    int result = lily_exec_template_file(state, r->filename);
+    int result = lily_render_file(state, r->filename);
 
     if (result == 0 && conf->show_traceback)
         /* !!!: This is unsafe, because it's possible for the error message to
