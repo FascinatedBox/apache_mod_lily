@@ -13,7 +13,7 @@ Here's a configuration to get you started.
 
 ```
 # Near the module section:
-LoadModule                /usr/lib64/httpd/modules/mod_lily.so
+LoadModule    lily_module    /usr/lib64/httpd/modules/mod_lily.so
 
 # After cgi-bin...
 <Directory "/var/www/cgi-bin">

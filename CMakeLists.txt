@@ -4,6 +4,7 @@ project("lily-apache")
 message("${CMAKE_INSTALL_PREFIX}/include/lily/")
 include_directories("${CMAKE_INSTALL_PREFIX}/include/lily/")
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 add_library(mod_lily SHARED mod_lily.c)

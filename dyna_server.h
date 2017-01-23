@@ -18,13 +18,13 @@ const char *lily_server_dynaload_table[] = {
     ,"Z"
 };
 
-void *lily_server_loader(lily_options *o, uint16_t *c, int id)
+void *lily_server_loader(lily_state *s, int id)
 {
     switch (id) {
-        case 1: return load_var_env(o, c);
-        case 2: return load_var_get(o, c);
-        case 3: return load_var_httpmethod(o, c);
-        case 4: return load_var_post(o, c);
+        case 1: load_var_env(s); return NULL;
+        case 2: load_var_get(s); return NULL;
+        case 3: load_var_httpmethod(s); return NULL;
+        case 4: load_var_post(s); return NULL;
         case 5: return lily_server_escape;
         case 6: return lily_server_write;
         case 7: return lily_server_write_literal;
