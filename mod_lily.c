@@ -113,7 +113,7 @@ This contains key+value pairs containing the current environment of the server.
 */
 static void *load_var_env(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_get_data(s);
+    request_rec *r = (request_rec *)lily_op_get_data(s);
     ap_add_cgi_vars(r);
     ap_add_common_vars(r);
 
@@ -129,7 +129,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 static void load_var_get(lily_state *s)
 {
     apr_table_t *http_get_args;
-    ap_args_to_table((request_rec *)lily_get_data(s), &http_get_args);
+    ap_args_to_table((request_rec *)lily_op_get_data(s), &http_get_args);
 
     bind_table_as(s, http_get_args, "get");
 }
@@ -142,7 +142,7 @@ Common values are "GET", and "POST".
 */
 static void load_var_httpmethod(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_get_data(s);
+    request_rec *r = (request_rec *)lily_op_get_data(s);
 
     lily_push_string(s, lily_new_string(r->method));
 }
@@ -155,7 +155,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 */
 static void load_var_post(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_get_data(s);
+    request_rec *r = (request_rec *)lily_op_get_data(s);
     apr_pool_t *pool;
 
     apr_pool_create(&pool, r->pool);
@@ -235,7 +235,7 @@ void lily_server_write(lily_state *s)
     else
         source = lily_mb_get(lily_get_msgbuf_noflush(s));
 
-    ap_rputs(source, (request_rec *)lily_get_data(s));
+    ap_rputs(source, (request_rec *)lily_op_get_data(s));
 }
 
 /**
@@ -253,7 +253,7 @@ void lily_server_write_literal(lily_state *s)
 
     char *value = lily_arg_string_raw(s, 0);
 
-    ap_rputs(value, (request_rec *)lily_get_data(s));
+    ap_rputs(value, (request_rec *)lily_op_get_data(s));
 }
 
 /**
@@ -267,7 +267,7 @@ void lily_server_write_raw(lily_state *s)
 {
     char *value = lily_arg_string_raw(s, 0);
 
-    ap_rputs(value, (request_rec *)lily_get_data(s));
+    ap_rputs(value, (request_rec *)lily_op_get_data(s));
 }
 
 #include "dyna_server.h"
@@ -282,12 +282,9 @@ static int lily_handler(request_rec *r)
     lily_config_rec *conf = (lily_config_rec *)ap_get_module_config(
             r->per_dir_config, &lily_module);
 
-    lily_options *options = lily_new_options();
-    lily_op_data(options, r);
-    lily_op_render_func(options, (lily_render_func) ap_rputs);
-    lily_op_allow_sys(options, 0);
-
-    lily_state *state = lily_new_state(options);
+    lily_state *state = lily_new_state();
+    lily_op_data(state, r);
+    lily_op_render_func(state, (lily_render_func) ap_rputs);
     register_server(state);
 
     int result = lily_render_file(state, r->filename);
