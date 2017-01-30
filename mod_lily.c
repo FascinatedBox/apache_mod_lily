@@ -45,11 +45,10 @@ constructor Tainted[A](self: A): Tainted[A]
 */
 void lily_server_Tainted_new(lily_state *s)
 {
-    lily_container_val *result = lily_new_instance(ID_Tainted(s), 1);
-
-    lily_nth_set(result, 0, lily_arg_value(s, 0));
-
-    lily_return_instance(s, result);
+    lily_container_val *con;
+    lily_instance_super(s, &con, ID_Tainted(s), 1);
+    lily_nth_set(con, 0, lily_arg_value(s, 0));
+    lily_return_value(s, lily_take_value(s));
 }
 
 /**
