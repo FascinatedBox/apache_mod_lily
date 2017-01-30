@@ -66,27 +66,56 @@ This is the method that was used to make the request to the server.
 
 This contains key+value pairs that were sent to the server as POST variables.
 
-### define escape`(text: String): String`
+### define write`(text: HtmlString)`
 
-This checks `text` for having `"&"`, `"<"`, or `">"`. If any are found, then a
-new String is created where those html entities are replaced (`"&"` becomes
-`"&amp;"`, `"<"` becomes `"&lt;"`, `">"` becomes `"&gt;"`).
+This writes the contents of the `String` hidden within `text`. No escape is
+performed, because the `HtmlString` constructor is assumed to have done that
+already. */
+void lily_server_write(lily_state *s)
+{
+    const char *to_write = lily_value_string_raw(lily_arg_nth_get(s, 0, 0));
+    ap_rputs(to_write, (request_rec *)lily_op_get_data(s));
+}
 
-### define write`(text: String)`
+/**
+define write_literal(text: String)
 
-This escapes, then writes `text` to the server. It is equivalent to
-`server.write_raw(server.escape(text))`.
+Write `text` to the server **without** any entity escaping. This function
+assumes that the value passed is a `String` literal. Internally, this does the
+same work as `server.write_unsafe`. The use of this function is that it implies
+a contract (only `String` literals are passed). In doing so calls to
+`server.write_unsafe` (a necessary evil) stand out more.
 
 ### define write_literal`(text: String)`
 
-This writes `text` directly to the server. If `text` is not a `String` literal,
-then `ValueError` is raised. No escaping is performed.
+Write `text` to the server **without** any entity escaping. This function
+assumes that the value passed is a `String` literal. Internally, this does the
+same work as `server.write_unsafe`. The use of this function is that it implies
+a contract (only `String` literals are passed). In doing so calls to
+`server.write_unsafe` (a necessary evil) stand out more.
 
-### define write_raw`(text: String)`
+### define write_unsafe`(text: String)`
 
-This writes `text` directly to the server without performing any HTML character
-escaping. Use this only if you are certain that there is no possibility of HTML
-injection.
+This writes `text` to the server **without** any entity escaping. This
+function exists for cases when `text` is already escaped, or when `text` could
+never reasonably contain html entities.
+
+## class HtmlString
+
+```
+class HtmlString {
+    private var @text: String
+}
+```
+
+This class provides a wrapper over a `String`. The constructor of this class
+will replace any of `"&<>"` with the appropriate html entity. Thus, instances of
+this class are guaranteed to be html-encoded. The caller is responsible for
+not encoding the data themselves beforehand (or it will be double-encoded).
+
+### constructor HtmlString`(value: String): HtmlString`
+
+
 
 ## class Tainted
 

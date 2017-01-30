@@ -32,6 +32,35 @@ as functions for sending data through the Apache server.
 */
 
 /**
+native HtmlString
+    private var @text: String
+
+This class provides a wrapper over a `String`. The constructor of this class
+will replace any of `"&<>"` with the appropriate html entity. Thus, instances of
+this class are guaranteed to be html-encoded. The caller is responsible for
+not encoding the data themselves beforehand (or it will be double-encoded).
+*/
+
+/**
+constructor HtmlString(value: String): HtmlString
+*/
+void lily_server_HtmlString_new(lily_state *s)
+{
+    lily_container_val *con;
+    lily_instance_super(s, &con, ID_HtmlString(s), 1);
+
+    const char *text = lily_arg_string_raw(s, 0);
+    lily_msgbuf *msgbuf = lily_get_msgbuf(s);
+
+    if (lily_mb_html_escape(msgbuf, text) == text)
+        lily_nth_set(con, 0, lily_arg_value(s, 0));
+    else
+        lily_nth_set(con, 0, lily_box_string(s, lily_new_string(text)));
+
+    lily_return_value(s, lily_take_value(s));
+}
+
+/**
 native Tainted[A]
     private var @value: A
 
@@ -200,69 +229,41 @@ static void load_var_post(lily_state *s)
 }
 
 /**
-define escape(text: String): String
+define write(text: HtmlString)
 
-This checks `text` for having `"&"`, `"<"`, or `">"`. If any are found, then a
-new String is created where those html entities are replaced (`"&"` becomes
-`"&amp;"`, `"<"` becomes `"&lt;"`, `">"` becomes `"&gt;"`). Otherwise, `text` is
-returned unchanged.
-*/
-void lily_server_escape(lily_state *s)
-{
-    lily_value *v = lily_arg_value(s, 0);
-    const char *raw = lily_value_string_raw(v);
-    lily_msgbuf *msgbuf = lily_get_msgbuf(s);
-
-    if (lily_mb_html_escape(msgbuf, raw) == raw)
-        lily_return_value(s, v);
-    else
-        lily_return_string(s, lily_new_string(lily_mb_get(msgbuf)));
-}
-
-/**
-define write(text: String)
-
-This escapes, then writes `text` to the server. It's a shorthand for
-`server.write_raw(server.escape(text))`.
-*/
+This writes the contents of the `String` hidden within `text`. No escape is
+performed, because the `HtmlString` constructor is assumed to have done that
+already. */
 void lily_server_write(lily_state *s)
 {
-    lily_msgbuf *msgbuf = lily_get_msgbuf(s);
-    const char *value = lily_mb_html_escape(msgbuf, lily_arg_string_raw(s, 0));
-
-    ap_rputs(value, (request_rec *)lily_op_get_data(s));
+    const char *to_write = lily_value_string_raw(lily_arg_nth_get(s, 0, 0));
+    ap_rputs(to_write, (request_rec *)lily_op_get_data(s));
 }
 
 /**
 define write_literal(text: String)
 
-This writes `text` directly to the server. If `text` is not a `String` literal,
-then `ValueError` is raised. No escaping is performed.
+Write `text` to the server **without** any entity escaping. This function
+assumes that the value passed is a `String` literal. Internally, this does the
+same work as `server.write_unsafe`. The use of this function is that it implies
+a contract (only `String` literals are passed). In doing so calls to
+`server.write_unsafe` (a necessary evil) stand out more.
 */
 void lily_server_write_literal(lily_state *s)
 {
-    lily_value *write_reg = lily_arg_value(s, 0);
-
-    if (lily_value_is_derefable(write_reg) == 0)
-        lily_ValueError(s, "The string passed must be a literal.");
-
-    char *value = lily_arg_string_raw(s, 0);
-
-    ap_rputs(value, (request_rec *)lily_op_get_data(s));
+    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_op_get_data(s));
 }
 
 /**
-define write_raw(text: String)
+define write_unsafe(text: String)
 
-This writes `text` directly to the server without performing any HTML character
-escaping. Use this only if you are certain that there is no possibility of HTML
-injection.
+This writes `text` to the server **without** any entity escaping. This
+function exists for cases when `text` is already escaped, or when `text` could
+never reasonably contain html entities.
 */
-void lily_server_write_raw(lily_state *s)
+void lily_server_write_unsafe(lily_state *s)
 {
-    char *value = lily_arg_string_raw(s, 0);
-
-    ap_rputs(value, (request_rec *)lily_op_get_data(s));
+    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_op_get_data(s));
 }
 
 #include "dyna_server.h"
