@@ -40,7 +40,7 @@ server.write("Hello from mod_lily!")
 
 The following configuration directives are accepted by `mod_lily`.
 
-* __ShowTraceback__: If **On**, show error traceback. Default: **Off**.
+* __LilyTraceback__: If **On**, show error traceback. Default: **Off**.
 
 # server
 

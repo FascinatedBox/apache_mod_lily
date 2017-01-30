@@ -299,7 +299,7 @@ static int lily_handler(request_rec *r)
     return OK;
 }
 
-static const char *cmd_showtraceback(cmd_parms *cmd, void *p, int flag)
+static const char *cmd_lilytraceback(cmd_parms *cmd, void *p, int flag)
 {
     lily_config_rec *conf = (lily_config_rec *)p;
     conf->show_traceback = flag;
@@ -326,7 +326,7 @@ static void *perdir_merge(apr_pool_t *pool, void *a, void *b)
 }
 
 static const command_rec command_table[] = {
-    AP_INIT_FLAG("ShowTraceback", cmd_showtraceback, NULL, OR_FILEINFO,
+    AP_INIT_FLAG("LilyTraceback", cmd_lilytraceback, NULL, OR_FILEINFO,
             "If On, show interpreter exception traceback. Default: Off."),
     {NULL}
 };
