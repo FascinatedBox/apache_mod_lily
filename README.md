@@ -75,8 +75,7 @@ new String is created where those html entities are replaced (`"&"` becomes
 ### define write`(text: String)`
 
 This escapes, then writes `text` to the server. It is equivalent to
-`server.write_raw(server.escape(text))`, except faster because it skips building
-an intermediate `String` value.
+`server.write_raw(server.escape(text))`.
 
 ### define write_literal`(text: String)`
 

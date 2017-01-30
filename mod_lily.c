@@ -199,9 +199,6 @@ static void load_var_post(lily_state *s)
     lily_push_hash(s, table_data.hash);
 }
 
-extern void lily_builtin_String_html_encode(lily_state *);
-extern int lily_maybe_html_encode_to_buffer(lily_state *, lily_value *);
-
 /**
 define escape(text: String): String
 
@@ -212,30 +209,28 @@ returned unchanged.
 */
 void lily_server_escape(lily_state *s)
 {
-    lily_builtin_String_html_encode(s);
+    lily_value *v = lily_arg_value(s, 0);
+    const char *raw = lily_value_string_raw(v);
+    lily_msgbuf *msgbuf = lily_get_msgbuf(s);
+
+    if (lily_mb_html_escape(msgbuf, raw) == raw)
+        lily_return_value(s, v);
+    else
+        lily_return_string(s, lily_new_string(lily_mb_get(msgbuf)));
 }
 
 /**
 define write(text: String)
 
-This escapes, then writes `text` to the server. It is equivalent to
-`server.write_raw(server.escape(text))`, except faster because it skips building
-an intermediate `String` value.
+This escapes, then writes `text` to the server. It's a shorthand for
+`server.write_raw(server.escape(text))`.
 */
 void lily_server_write(lily_state *s)
 {
-    lily_value *input = lily_arg_value(s, 0);
-    const char *source;
+    lily_msgbuf *msgbuf = lily_get_msgbuf(s);
+    const char *value = lily_mb_html_escape(msgbuf, lily_arg_string_raw(s, 0));
 
-    /* String.html_encode can't be called directly, for a couple reasons.
-       1: It expects a result register, and there isn't one.
-       2: It may create a new String, which is unnecessary. */
-    if (lily_maybe_html_encode_to_buffer(s, input) == 0)
-        source = lily_arg_string_raw(s, 0);
-    else
-        source = lily_mb_get(lily_get_msgbuf_noflush(s));
-
-    ap_rputs(source, (request_rec *)lily_op_get_data(s));
+    ap_rputs(value, (request_rec *)lily_op_get_data(s));
 }
 
 /**
@@ -288,11 +283,10 @@ static int lily_handler(request_rec *r)
     register_server(state);
 
     int result = lily_render_file(state, r->filename);
+    lily_msgbuf *msgbuf = lily_get_msgbuf(state);
 
     if (result == 0 && conf->show_traceback)
-        /* !!!: This is unsafe, because it's possible for the error message to
-           have html entities in the message. */
-        ap_rputs(lily_get_error(state), r);
+        ap_rputs(lily_mb_html_escape(msgbuf, lily_get_error(state)), r);
 
     lily_free_state(state);
 
