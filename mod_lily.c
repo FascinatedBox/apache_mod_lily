@@ -41,7 +41,7 @@ unsafe. Data, once inside a `Tainted` value can only be retrieved using the
 */
 
 /**
-constructor Tainted[A](self: A): Tainted[A]
+constructor Tainted[A](value: A): Tainted[A]
 */
 void lily_server_Tainted_new(lily_state *s)
 {
@@ -205,9 +205,10 @@ extern int lily_maybe_html_encode_to_buffer(lily_state *, lily_value *);
 /**
 define escape(text: String): String
 
-This checks self for having `"&"`, `"<"`, or `">"`. If any are found, then a new
-String is created where those html entities are replaced (`"&"` becomes
-`"&amp;"`, `"<"` becomes `"&lt;"`, `">"` becomes `"&gt;"`).
+This checks `text` for having `"&"`, `"<"`, or `">"`. If any are found, then a
+new String is created where those html entities are replaced (`"&"` becomes
+`"&amp;"`, `"<"` becomes `"&lt;"`, `">"` becomes `"&gt;"`). Otherwise, `text` is
+returned unchanged.
 */
 void lily_server_escape(lily_state *s)
 {
@@ -217,7 +218,7 @@ void lily_server_escape(lily_state *s)
 /**
 define write(text: String)
 
-This escapes, then writes 'text' to the server. It is equivalent to
+This escapes, then writes `text` to the server. It is equivalent to
 `server.write_raw(server.escape(text))`, except faster because it skips building
 an intermediate `String` value.
 */
@@ -248,7 +249,7 @@ void lily_server_write_literal(lily_state *s)
     lily_value *write_reg = lily_arg_value(s, 0);
 
     if (lily_value_is_derefable(write_reg) == 0)
-        lily_ValueError(s, "The string passed must be a literal.\n");
+        lily_ValueError(s, "The string passed must be a literal.");
 
     char *value = lily_arg_string_raw(s, 0);
 

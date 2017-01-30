@@ -68,13 +68,13 @@ This contains key+value pairs that were sent to the server as POST variables.
 
 ### define escape`(text: String): String`
 
-This checks self for having `"&"`, `"<"`, or `">"`. If any are found, then a new
-String is created where those html entities are replaced (`"&"` becomes
+This checks `text` for having `"&"`, `"<"`, or `">"`. If any are found, then a
+new String is created where those html entities are replaced (`"&"` becomes
 `"&amp;"`, `"<"` becomes `"&lt;"`, `">"` becomes `"&gt;"`).
 
 ### define write`(text: String)`
 
-This escapes, then writes 'text' to the server. It is equivalent to
+This escapes, then writes `text` to the server. It is equivalent to
 `server.write_raw(server.escape(text))`, except faster because it skips building
 an intermediate `String` value.
 
@@ -101,7 +101,7 @@ The `Tainted` type represents a wrapper over some data that is considered
 unsafe. Data, once inside a `Tainted` value can only be retrieved using the
 `Tainted.sanitize` function.
 
-### constructor Tainted`[A](self: A): Tainted[A]`
+### constructor Tainted`[A](value: A): Tainted[A]`
 
 
 
