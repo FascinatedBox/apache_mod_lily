@@ -58,7 +58,7 @@ This contains key+value pairs containing the current environment of the server.
 
 This contains key+value pairs that were sent to the server as GET variables.
 
-### var httpmethod: `String`
+### var http_method: `String`
 
 This is the method that was used to make the request to the server.
 

@@ -163,12 +163,12 @@ static void load_var_get(lily_state *s)
 }
 
 /**
-var httpmethod: String
+var http_method: String
 
 This is the method that was used to make the request to the server.
 Common values are "GET", and "POST".
 */
-static void load_var_httpmethod(lily_state *s)
+static void load_var_http_method(lily_state *s)
 {
     request_rec *r = (request_rec *)lily_op_get_data(s);
 

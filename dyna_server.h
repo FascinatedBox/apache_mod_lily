@@ -5,7 +5,7 @@ const char *lily_server_dynaload_table[] = {
     "\2HtmlString\0Tainted\0"
     ,"R\0env\0Hash[String, Tainted[String]]"
     ,"R\0get\0Hash[String, Tainted[String]]"
-    ,"R\0httpmethod\0String"
+    ,"R\0http_method\0String"
     ,"R\0post\0Hash[String, Tainted[String]]"
     ,"F\0write\0(HtmlString)"
     ,"F\0write_literal\0(String)"
@@ -25,7 +25,7 @@ void *lily_server_loader(lily_state *s, int id)
     switch (id) {
         case 1: load_var_env(s); return NULL;
         case 2: load_var_get(s); return NULL;
-        case 3: load_var_httpmethod(s); return NULL;
+        case 3: load_var_http_method(s); return NULL;
         case 4: load_var_post(s); return NULL;
         case 5: return lily_server_write;
         case 6: return lily_server_write_literal;
