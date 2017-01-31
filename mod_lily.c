@@ -233,7 +233,8 @@ define write(text: HtmlString)
 
 This writes the contents of the `String` hidden within `text`. No escape is
 performed, because the `HtmlString` constructor is assumed to have done that
-already. */
+already.
+*/
 void lily_server_write(lily_state *s)
 {
     const char *to_write = lily_value_string_raw(lily_arg_nth_get(s, 0, 0));

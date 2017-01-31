@@ -70,21 +70,7 @@ This contains key+value pairs that were sent to the server as POST variables.
 
 This writes the contents of the `String` hidden within `text`. No escape is
 performed, because the `HtmlString` constructor is assumed to have done that
-already. */
-void lily_server_write(lily_state *s)
-{
-    const char *to_write = lily_value_string_raw(lily_arg_nth_get(s, 0, 0));
-    ap_rputs(to_write, (request_rec *)lily_op_get_data(s));
-}
-
-/**
-define write_literal(text: String)
-
-Write `text` to the server **without** any entity escaping. This function
-assumes that the value passed is a `String` literal. Internally, this does the
-same work as `server.write_unsafe`. The use of this function is that it implies
-a contract (only `String` literals are passed). In doing so calls to
-`server.write_unsafe` (a necessary evil) stand out more.
+already.
 
 ### define write_literal`(text: String)`
 
