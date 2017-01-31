@@ -50,7 +50,7 @@ void lily_server_HtmlString_new(lily_state *s)
     lily_instance_super(s, &con, ID_HtmlString(s), 1);
 
     const char *text = lily_arg_string_raw(s, 0);
-    lily_msgbuf *msgbuf = lily_get_msgbuf(s);
+    lily_msgbuf *msgbuf = lily_get_clean_msgbuf(s);
 
     if (lily_mb_html_escape(msgbuf, text) == text)
         lily_nth_set(con, 0, lily_arg_value(s, 0));
@@ -285,7 +285,7 @@ static int lily_handler(request_rec *r)
     register_server(state);
 
     int result = lily_render_file(state, r->filename);
-    lily_msgbuf *msgbuf = lily_get_msgbuf(state);
+    lily_msgbuf *msgbuf = lily_get_clean_msgbuf(state);
 
     if (result == 0 && conf->show_traceback)
         ap_rputs(lily_mb_html_escape(msgbuf, lily_get_error(state)), r);
