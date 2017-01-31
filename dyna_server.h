@@ -27,9 +27,9 @@ void *lily_server_loader(lily_state *s, int id)
         case 2: load_var_get(s); return NULL;
         case 3: load_var_http_method(s); return NULL;
         case 4: load_var_post(s); return NULL;
-        case 5: return lily_server_write;
-        case 6: return lily_server_write_literal;
-        case 7: return lily_server_write_unsafe;
+        case 5: return lily_server__write;
+        case 6: return lily_server__write_literal;
+        case 7: return lily_server__write_unsafe;
         case 9: return lily_server_HtmlString_new;
         case 12: return lily_server_Tainted_new;
         case 13: return lily_server_Tainted_sanitize;

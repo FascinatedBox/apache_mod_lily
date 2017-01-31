@@ -235,7 +235,7 @@ This writes the contents of the `String` hidden within `text`. No escape is
 performed, because the `HtmlString` constructor is assumed to have done that
 already.
 */
-void lily_server_write(lily_state *s)
+void lily_server__write(lily_state *s)
 {
     const char *to_write = lily_value_string_raw(lily_arg_nth_get(s, 0, 0));
     ap_rputs(to_write, (request_rec *)lily_op_get_data(s));
@@ -250,7 +250,7 @@ same work as `server.write_unsafe`. The use of this function is that it implies
 a contract (only `String` literals are passed). In doing so calls to
 `server.write_unsafe` (a necessary evil) stand out more.
 */
-void lily_server_write_literal(lily_state *s)
+void lily_server__write_literal(lily_state *s)
 {
     ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_op_get_data(s));
 }
@@ -262,7 +262,7 @@ This writes `text` to the server **without** any entity escaping. This
 function exists for cases when `text` is already escaped, or when `text` could
 never reasonably contain html entities.
 */
-void lily_server_write_unsafe(lily_state *s)
+void lily_server__write_unsafe(lily_state *s)
 {
     ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_op_get_data(s));
 }
