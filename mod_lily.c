@@ -1,5 +1,3 @@
-/*  mod_lily.c
-    This is an apache binding for the Lily language. */
 #include "httpd.h"
 #include "http_config.h"
 #include "http_protocol.h"
