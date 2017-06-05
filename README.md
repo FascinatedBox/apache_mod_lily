@@ -1,6 +1,8 @@
 lily-apache
 ===========
 
+[View Documentation](https://fascinatedbox.github.io/lily-apache/server/module.server.html)
+
 Lily server protocol: [Version 1.0](https://github.com/FascinatedBox/lily-server-protocol)
 
 This package provides a bridge between Lily and the Apache web server. You'll
