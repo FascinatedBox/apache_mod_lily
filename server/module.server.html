@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>server : Lily</title>
+        <link href="../docstyle.css" rel="stylesheet">
+    </head>
+
+    <body role="document">
+        <section id='main'>
+<h1>Module server</h1>
+<div class='doc'><p>
+This package is registered when Lily is run by Apache through mod_lily. This
+package provides Lily with information inside of Apache (such as POST), as well
+as functions for sending data through the Apache server.</p></div>
+<h2>Classes</h2>
+<table><tbody>
+<tr>
+<td><a class='reflink' href='class.HtmlString.html'>HtmlString</a></td>
+<td>
+This class provides a wrapper over a <code>String</code>. The constructor of this class
+will replace any of <code>&quot;&amp;&lt;&gt;&quot;</code> with the appropriate html entity. Thus, instances of
+this class are guaranteed to be html-encoded. The caller is responsible for
+not encoding the data themselves beforehand (or it will be double-encoded).</td>
+</tr>
+<tr>
+<td><a class='reflink' href='class.Tainted.html'>Tainted</a></td>
+<td>
+The <code>Tainted</code> type represents a wrapper over some data that is considered
+unsafe. Data, once inside a <code>Tainted</code> value can only be retrieved using the
+<code>Tainted.sanitize</code> function.</td>
+</tr>
+</tbody></table>
+<h2>Functions</h2>
+<h3 id='function.write'><code>define <a href='#function.write'>write</a>(text: <a href='class.HtmlString.html'>HtmlString</a>)</code></h3>
+<div class='doc'><p>
+This writes the contents of the <code>String</code> hidden within <code>text</code>. No escape is
+performed, because the <code>HtmlString</code> constructor is assumed to have done that
+already.</p></div>
+<h3 id='function.write_literal'><code>define <a href='#function.write_literal'>write_literal</a>(text: String)</code></h3>
+<div class='doc'><p>
+Write <code>text</code> to the server **without** any entity escaping. This function
+assumes that the value passed is a <code>String</code> literal. Internally, this does the
+same work as <code>server.write_unsafe</code>. The use of this function is that it implies
+a contract (only <code>String</code> literals are passed). In doing so calls to
+<code>server.write_unsafe</code> (a necessary evil) stand out more.</p></div>
+<h3 id='function.write_unsafe'><code>define <a href='#function.write_unsafe'>write_unsafe</a>(text: String)</code></h3>
+<div class='doc'><p>
+This writes <code>text</code> to the server **without** any entity escaping. This
+function exists for cases when <code>text</code> is already escaped, or when <code>text</code> could
+never reasonably contain html entities.</p></div>
+<h2>Vars</h2>
+<h3 id='var.env'><code>var <a href='#var.env'>env</a>: Hash[String, <a href='class.Tainted.html'>Tainted</a>[String]]</code></h3>
+<div class='doc'><p>
+This contains key+value pairs containing the current environment of the server.</p></div>
+<h3 id='var.get'><code>var <a href='#var.get'>get</a>: Hash[String, <a href='class.Tainted.html'>Tainted</a>[String]]</code></h3>
+<div class='doc'><p>
+This contains key+value pairs that were sent to the server as GET variables.
+Any pair that has a key or a value that is not valid utf-8 will not be present.</p></div>
+<h3 id='var.http_method'><code>var <a href='#var.http_method'>http_method</a>: String</code></h3>
+<div class='doc'><p>
+This is the method that was used to make the request to the server.
+Common values are &quot;GET&quot;, and &quot;POST&quot;.</p></div>
+<h3 id='var.post'><code>var <a href='#var.post'>post</a>: Hash[String, <a href='class.Tainted.html'>Tainted</a>[String]]</code></h3>
+<div class='doc'><p>
+This contains key+value pairs that were sent to the server as POST variables.
+Any pair that has a key or a value that is not valid utf-8 will not be present.</p></div>
+        </section>
+    </body>
+</html>

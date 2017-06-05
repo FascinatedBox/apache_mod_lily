@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>server.Tainted : Lily</title>
+        <link href="../docstyle.css" rel="stylesheet">
+    </head>
+
+    <body role="document">
+        <section id='main'>
+<h1>Class Tainted</h1>
+<pre>class Tainted[A] {
+    private var @value: A
+}</pre>
+<div class='doc'><p>
+The <code>Tainted</code> type represents a wrapper over some data that is considered
+unsafe. Data, once inside a <code>Tainted</code> value can only be retrieved using the
+<code>Tainted.sanitize</code> function.</p></div>
+<h2>Methods</h2>
+<h3 id='method.&lt;new&gt;'><code>define <a href='#method.&lt;new&gt;'>&lt;new&gt;</a>(value: A): <a href='class.Tainted.html'>Tainted</a>[A] <i>constructor</i></code></h3>
+<div class='doc'><p></p></div>
+<h3 id='method.sanitize'><code>define <a href='#method.sanitize'>sanitize</a>(fn: Function(A => B)): B</code></h3>
+<div class='doc'><p>
+This calls <code>fn</code> with the value contained within <code>self</code>. <code>fn</code> is assumed to be a
+function that can sanitize the data within <code>self</code>.</p></div>
+        </section>
+    </body>
+</html>
