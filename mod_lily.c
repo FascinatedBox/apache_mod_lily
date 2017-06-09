@@ -25,9 +25,13 @@ static int lily_handler(request_rec *r)
     lily_config_rec *conf = (lily_config_rec *)ap_get_module_config(
             r->per_dir_config, &lily_module);
 
-    lily_state *state = lily_new_state();
-    lily_op_data(state, r);
-    lily_op_render_func(state, (lily_render_func) ap_rputs);
+    lily_config config;
+
+    lily_init_config(&config);
+    config.data = r;
+    config.render_func = (lily_render_func)ap_rputs;
+
+    lily_state *state = lily_new_state(&config);
     LILY_REGISTER_PACKAGE(state, server);
 
     int result = lily_render_file(state, r->filename);

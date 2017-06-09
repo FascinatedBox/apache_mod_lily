@@ -181,7 +181,7 @@ This contains key+value pairs containing the current environment of the server.
 */
 static void *load_var_env(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_op_get_data(s);
+    request_rec *r = (request_rec *)lily_get_config(s)->data;
     ap_add_cgi_vars(r);
     ap_add_common_vars(r);
 
@@ -197,7 +197,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 static void load_var_get(lily_state *s)
 {
     apr_table_t *http_get_args;
-    ap_args_to_table((request_rec *)lily_op_get_data(s), &http_get_args);
+    ap_args_to_table((request_rec *)lily_get_config(s)->data, &http_get_args);
 
     bind_table_as(s, http_get_args, "get");
 }
@@ -210,7 +210,7 @@ Common values are "GET", and "POST".
 */
 static void load_var_http_method(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_op_get_data(s);
+    request_rec *r = (request_rec *)lily_get_config(s)->data;
 
     lily_push_string(s, lily_new_string(r->method));
 }
@@ -223,7 +223,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 */
 static void load_var_post(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_op_get_data(s);
+    request_rec *r = (request_rec *)lily_get_config(s)->data;
     apr_pool_t *pool;
 
     apr_pool_create(&pool, r->pool);
@@ -278,7 +278,7 @@ already.
 void lily_server__write(lily_state *s)
 {
     const char *to_write = lily_value_string_raw(lily_arg_nth_get(s, 0, 0));
-    ap_rputs(to_write, (request_rec *)lily_op_get_data(s));
+    ap_rputs(to_write, (request_rec *)lily_get_config(s)->data);
 }
 
 /**
@@ -292,7 +292,7 @@ a contract (only `String` literals are passed). In doing so calls to
 */
 void lily_server__write_literal(lily_state *s)
 {
-    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_op_get_data(s));
+    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_get_config(s)->data);
 }
 
 /**
@@ -304,5 +304,5 @@ never reasonably contain html entities.
 */
 void lily_server__write_unsafe(lily_state *s)
 {
-    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_op_get_data(s));
+    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_get_config(s)->data);
 }
