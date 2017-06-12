@@ -130,11 +130,9 @@ void lily_server_Tainted_sanitize(lily_state *s)
 {
     lily_container_val *instance_val = lily_arg_container(s, 0);
 
+    lily_call_prepare(s, lily_arg_function(s, 1));
     lily_push_value(s, lily_nth_get(instance_val, 0));
-
-    lily_call_simple(s, lily_arg_function(s, 1), 1);
-
-    lily_return_value(s, lily_result_value(s));
+    lily_return_value(s, lily_call_result(s));
 }
 
 static void add_hash_entry(bind_table_data *table_data, lily_string_val *key,
