@@ -12,9 +12,7 @@ as functions for sending data through the Apache server.
 #include "ap_config.h"
 #include "util_script.h"
 
-#include "lily_api_embed.h"
-#include "lily_api_msgbuf.h"
-#include "lily_api_value.h"
+#include "lily.h"
 
 /** Begin autogen section. **/
 #define ID_HtmlString(state) lily_cid_at(state, 0)
@@ -93,7 +91,7 @@ void lily_server_HtmlString_new(lily_state *s)
     lily_push_super(s, ID_HtmlString(s), 1);
 
     const char *text = lily_arg_string_raw(s, 0);
-    lily_msgbuf *msgbuf = lily_get_clean_msgbuf(s);
+    lily_msgbuf *msgbuf = lily_msgbuf_get(s);
 
     if (lily_mb_html_escape(msgbuf, text) == text)
         lily_con_set(con, 0, lily_arg_value(s, 0));
@@ -168,7 +166,7 @@ static int bind_table_entry(void *data, const char *key, const char *value)
 static void bind_table_as(lily_state *s, apr_table_t *table, char *name)
 {
     bind_table_data table_data;
-    table_data.hash = lily_push_hash_string(s, 0);
+    table_data.hash = lily_push_hash(s, 0);
     table_data.s = s;
 
     apr_table_do(bind_table_entry, &table_data, table, NULL);
@@ -181,7 +179,7 @@ This contains key+value pairs containing the current environment of the server.
 */
 static void *load_var_env(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_get_config(s)->data;
+    request_rec *r = (request_rec *)lily_config_get(s)->data;
     ap_add_cgi_vars(r);
     ap_add_common_vars(r);
 
@@ -197,7 +195,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 static void load_var_get(lily_state *s)
 {
     apr_table_t *http_get_args;
-    ap_args_to_table((request_rec *)lily_get_config(s)->data, &http_get_args);
+    ap_args_to_table((request_rec *)lily_config_get(s)->data, &http_get_args);
 
     bind_table_as(s, http_get_args, "get");
 }
@@ -210,7 +208,7 @@ Common values are "GET", and "POST".
 */
 static void load_var_http_method(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_get_config(s)->data;
+    request_rec *r = (request_rec *)lily_config_get(s)->data;
 
     lily_push_string(s, r->method);
 }
@@ -223,7 +221,7 @@ Any pair that has a key or a value that is not valid utf-8 will not be present.
 */
 static void load_var_post(lily_state *s)
 {
-    request_rec *r = (request_rec *)lily_get_config(s)->data;
+    request_rec *r = (request_rec *)lily_config_get(s)->data;
     apr_pool_t *pool;
 
     apr_pool_create(&pool, r->pool);
@@ -234,7 +232,7 @@ static void load_var_post(lily_state *s)
     char *buffer;
 
     bind_table_data table_data;
-    table_data.hash = lily_push_hash_string(s, 0);
+    table_data.hash = lily_push_hash(s, 0);
     table_data.s = s;
 
     /* Credit: I found out how to use this by reading httpd 2.4's mod_lua
@@ -274,7 +272,7 @@ void lily_server__write(lily_state *s)
 {
     lily_container_val *con = lily_arg_container(s, 0);
     const char *to_write = lily_as_string_raw(lily_con_get(con, 0));
-    ap_rputs(to_write, (request_rec *)lily_get_config(s)->data);
+    ap_rputs(to_write, (request_rec *)lily_config_get(s)->data);
 }
 
 /**
@@ -288,7 +286,7 @@ a contract (only `String` literals are passed). In doing so calls to
 */
 void lily_server__write_literal(lily_state *s)
 {
-    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_get_config(s)->data);
+    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_config_get(s)->data);
 }
 
 /**
@@ -300,5 +298,5 @@ never reasonably contain html entities.
 */
 void lily_server__write_unsafe(lily_state *s)
 {
-    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_get_config(s)->data);
+    ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_config_get(s)->data);
 }

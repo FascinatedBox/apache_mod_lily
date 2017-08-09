@@ -4,10 +4,10 @@
 #include "ap_config.h"
 #include "util_script.h"
 
-#include "lily_api_embed.h"
-#include "lily_api_msgbuf.h"
+#include "lily.h"
 
-LILY_DECLARE_PACKAGE(server);
+extern const char **lily_server_table;
+void *lily_server_loader(lily_state *, int);
 
 typedef struct {
     int show_traceback;
@@ -27,18 +27,18 @@ static int lily_handler(request_rec *r)
 
     lily_config config;
 
-    lily_init_config(&config);
+    lily_config_init(&config);
     config.data = r;
     config.render_func = (lily_render_func)ap_rputs;
 
     lily_state *state = lily_new_state(&config);
-    LILY_REGISTER_PACKAGE(state, server);
+    lily_module_register(state, "server", lily_server_table, lily_server_loader);
 
     int result = lily_render_file(state, r->filename);
-    lily_msgbuf *msgbuf = lily_get_clean_msgbuf(state);
+    lily_msgbuf *msgbuf = lily_msgbuf_get(state);
 
     if (result == 0 && conf->show_traceback)
-        ap_rputs(lily_mb_html_escape(msgbuf, lily_get_error(state)), r);
+        ap_rputs(lily_mb_html_escape(msgbuf, lily_error_message(state)), r);
 
     lily_free_state(state);
 
