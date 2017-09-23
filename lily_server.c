@@ -33,6 +33,7 @@ const char *lily_server_table[] = {
     ,"F\0write_unsafe\0(String)"
     ,"R\0env\0Hash[String, Tainted[String]]"
     ,"R\0get\0Hash[String, Tainted[String]]"
+    ,"R\0headers\0Hash[String, Tainted[String]]"
     ,"R\0http_method\0String"
     ,"R\0post\0Hash[String, Tainted[String]]"
     ,"Z"
@@ -48,6 +49,7 @@ void lily_server__write_literal(lily_state *);
 void lily_server__write_unsafe(lily_state *);
 void lily_server_var_env(lily_state *);
 void lily_server_var_get(lily_state *);
+void lily_server_var_headers(lily_state *);
 void lily_server_var_http_method(lily_state *);
 void lily_server_var_post(lily_state *);
 void *lily_server_loader(lily_state *s, int id)
@@ -61,8 +63,9 @@ void *lily_server_loader(lily_state *s, int id)
         case toplevel_OFFSET + 2: return lily_server__write_unsafe;
         case toplevel_OFFSET + 3: lily_server_var_env(s); return NULL;
         case toplevel_OFFSET + 4: lily_server_var_get(s); return NULL;
-        case toplevel_OFFSET + 5: lily_server_var_http_method(s); return NULL;
-        case toplevel_OFFSET + 6: lily_server_var_post(s); return NULL;
+        case toplevel_OFFSET + 5: lily_server_var_headers(s); return NULL;
+        case toplevel_OFFSET + 6: lily_server_var_http_method(s); return NULL;
+        case toplevel_OFFSET + 7: lily_server_var_post(s); return NULL;
         default: return NULL;
     }
 }
@@ -196,6 +199,19 @@ void lily_server_var_get(lily_state *s)
     ap_args_to_table((request_rec *)lily_config_get(s)->data, &http_get_args);
 
     bind_table_as(s, http_get_args, "get");
+}
+
+/**
+var headers: Hash[String, Tainted[String]]
+
+This contains key+value pairs that were sent to the server as headers.
+Any pair that has a key or a value that is not valid utf-8 will not be present.
+*/
+void lily_server_var_headers(lily_state *s)
+{
+    apr_table_t *http_headers = ((request_rec *)lily_config_get(s)->data)->headers_in;
+
+    bind_table_as(s, http_headers, "headers");
 }
 
 /**
