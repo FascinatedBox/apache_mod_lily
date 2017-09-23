@@ -6,7 +6,7 @@
 
 #include "lily.h"
 
-extern const char **lily_server_table;
+extern const char *lily_server_table[];
 void *lily_server_loader(lily_state *, int);
 
 typedef struct {

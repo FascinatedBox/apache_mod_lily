@@ -177,7 +177,7 @@ var env: Hash[String, Tainted[String]]
 
 This contains key+value pairs containing the current environment of the server.
 */
-static void *load_var_env(lily_state *s)
+void lily_server_var_env(lily_state *s)
 {
     request_rec *r = (request_rec *)lily_config_get(s)->data;
     ap_add_cgi_vars(r);
@@ -192,7 +192,7 @@ var get: Hash[String, Tainted[String]]
 This contains key+value pairs that were sent to the server as GET variables.
 Any pair that has a key or a value that is not valid utf-8 will not be present.
 */
-static void load_var_get(lily_state *s)
+void lily_server_var_get(lily_state *s)
 {
     apr_table_t *http_get_args;
     ap_args_to_table((request_rec *)lily_config_get(s)->data, &http_get_args);
@@ -206,7 +206,7 @@ var http_method: String
 This is the method that was used to make the request to the server.
 Common values are "GET", and "POST".
 */
-static void load_var_http_method(lily_state *s)
+void lily_server_var_http_method(lily_state *s)
 {
     request_rec *r = (request_rec *)lily_config_get(s)->data;
 
@@ -219,7 +219,7 @@ var post: Hash[String, Tainted[String]]
 This contains key+value pairs that were sent to the server as POST variables.
 Any pair that has a key or a value that is not valid utf-8 will not be present.
 */
-static void load_var_post(lily_state *s)
+void lily_server_var_post(lily_state *s)
 {
     request_rec *r = (request_rec *)lily_config_get(s)->data;
     apr_pool_t *pool;
