@@ -24,7 +24,7 @@ const char *lily_server_table[] = {
     ,"N\02HtmlString\0"
     ,"m\0<new>\0(String):HtmlString"
     ,"1\0text\0String"
-    ,"N\03Tainted\0"
+    ,"N\03Tainted\0[A]"
     ,"m\0<new>\0[A](A):Tainted[A]"
     ,"m\0sanitize\0[A,B](Tainted[A],Function(A=>B)):B"
     ,"1\0value\0A"
@@ -113,8 +113,7 @@ unsafe. Data, once inside a `Tainted` value can only be retrieved using the
 
 void lily_server_Tainted_new(lily_state *s)
 {
-    lily_container_val *con;
-    lily_push_super(s, ID_Tainted(s), 1);
+    lily_container_val *con = lily_push_super(s, ID_Tainted(s), 1);
     lily_con_set(con, 0, lily_arg_value(s, 0));
     lily_return_super(s);
 }
@@ -131,6 +130,7 @@ void lily_server_Tainted_sanitize(lily_state *s)
 
     lily_call_prepare(s, lily_arg_function(s, 1));
     lily_push_value(s, lily_con_get(instance_val, 0));
+    lily_call(s, 1);
     lily_return_value(s, lily_call_result(s));
 }
 
