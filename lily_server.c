@@ -86,9 +86,7 @@ not encoding the data themselves beforehand (or it will be double-encoded).
 
 void lily_server_HtmlString_new(lily_state *s)
 {
-    lily_container_val *con;
-
-    lily_push_super(s, ID_HtmlString(s), 1);
+    lily_container_val *con = lily_push_super(s, ID_HtmlString(s), 1);
 
     const char *text = lily_arg_string_raw(s, 0);
     lily_msgbuf *msgbuf = lily_msgbuf_get(s);
@@ -96,7 +94,7 @@ void lily_server_HtmlString_new(lily_state *s)
     if (lily_mb_html_escape(msgbuf, text) == text)
         lily_con_set(con, 0, lily_arg_value(s, 0));
     else {
-        lily_push_string(s, text);
+        lily_push_string(s, lily_mb_raw(msgbuf));
         lily_con_set_from_stack(s, con, 0);
     }
 
