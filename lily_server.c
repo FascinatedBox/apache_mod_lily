@@ -164,7 +164,7 @@ static int bind_table_entry(void *data, const char *key, const char *value)
     return TRUE;
 }
 
-static void bind_table_as(lily_state *s, apr_table_t *table, char *name)
+static void bind_table_as(lily_state *s, apr_table_t *table)
 {
     bind_table_data table_data;
     table_data.hash = lily_push_hash(s, 0);
@@ -184,7 +184,7 @@ void lily_server_var_env(lily_state *s)
     ap_add_cgi_vars(r);
     ap_add_common_vars(r);
 
-    bind_table_as(s, r->subprocess_env, "env");
+    bind_table_as(s, r->subprocess_env);
 }
 
 /**
@@ -198,7 +198,7 @@ void lily_server_var_get(lily_state *s)
     apr_table_t *http_get_args;
     ap_args_to_table((request_rec *)lily_config_get(s)->data, &http_get_args);
 
-    bind_table_as(s, http_get_args, "get");
+    bind_table_as(s, http_get_args);
 }
 
 /**
@@ -211,7 +211,7 @@ void lily_server_var_headers(lily_state *s)
 {
     apr_table_t *http_headers = ((request_rec *)lily_config_get(s)->data)->headers_in;
 
-    bind_table_as(s, http_headers, "headers");
+    bind_table_as(s, http_headers);
 }
 
 /**
