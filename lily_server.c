@@ -33,6 +33,7 @@ const char *lily_server_table[] = {
     ,"F\0write_unsafe\0(String)"
     ,"F\0response_add_header\0(String,String)"
     ,"F\0response_remove_header\0(String)"
+    ,"F\0response_set_status\0(Integer)"
     ,"R\0env\0Hash[String, Tainted[String]]"
     ,"R\0get\0Hash[String, Tainted[String]]"
     ,"R\0request_headers\0Hash[String, Tainted[String]]"
@@ -51,6 +52,7 @@ void lily_server__write_literal(lily_state *);
 void lily_server__write_unsafe(lily_state *);
 void lily_server__response_add_header(lily_state *);
 void lily_server__response_remove_header(lily_state *);
+void lily_server__response_set_status(lily_state *);
 void lily_server_var_env(lily_state *);
 void lily_server_var_get(lily_state *);
 void lily_server_var_request_headers(lily_state *);
@@ -67,11 +69,12 @@ void *lily_server_loader(lily_state *s, int id)
         case toplevel_OFFSET + 2: return lily_server__write_unsafe;
         case toplevel_OFFSET + 3: return lily_server__response_add_header;
         case toplevel_OFFSET + 4: return lily_server__response_remove_header;
-        case toplevel_OFFSET + 5: lily_server_var_env(s); return NULL;
-        case toplevel_OFFSET + 6: lily_server_var_get(s); return NULL;
-        case toplevel_OFFSET + 7: lily_server_var_request_headers(s); return NULL;
-        case toplevel_OFFSET + 8: lily_server_var_http_method(s); return NULL;
-        case toplevel_OFFSET + 9: lily_server_var_post(s); return NULL;
+        case toplevel_OFFSET + 5: return lily_server__response_set_status;
+        case toplevel_OFFSET + 6: lily_server_var_env(s); return NULL;
+        case toplevel_OFFSET + 7: lily_server_var_get(s); return NULL;
+        case toplevel_OFFSET + 8: lily_server_var_request_headers(s); return NULL;
+        case toplevel_OFFSET + 9: lily_server_var_http_method(s); return NULL;
+        case toplevel_OFFSET + 10: lily_server_var_post(s); return NULL;
         default: return NULL;
     }
 }
@@ -373,4 +376,28 @@ void lily_server__response_remove_header(lily_state *s)
     apr_table_t *http_headers = ((request_rec *)lily_config_get(s)->data)->headers_out;
     // If the table does not contain `key`, this will be a no-op.
     apr_table_unset(http_headers, key);
+}
+
+/**
+define response_set_status(code: Integer)
+
+Set the response's status code to the specified `code`. If it has already been set,
+the previous value will be overwritten.
+
+# Errors:
+* `ValueError` if `code` is not in the range of [100, 600).
+*/
+void lily_server__response_set_status(lily_state *s)
+{
+    int64_t code = lily_arg_integer(s, 0);
+
+    if (!(100 <= code && code < 600)) {
+        lily_ValueError(s, "The provided status code (%d) must be in the range of [100, 600)", code);
+        return;
+    }
+
+    // TODO: check if header have already been sent? ap_rflush?
+
+    request_rec *req = ((request_rec *)lily_config_get(s)->data);
+    req->status = code;
 }
