@@ -31,6 +31,8 @@ const char *lily_server_table[] = {
     ,"F\0write\0(HtmlString)"
     ,"F\0write_literal\0(String)"
     ,"F\0write_unsafe\0(String)"
+    ,"F\0response_add_header\0(String,String)"
+    ,"F\0response_unset_header\0(String)"
     ,"R\0env\0Hash[String, Tainted[String]]"
     ,"R\0get\0Hash[String, Tainted[String]]"
     ,"R\0request_headers\0Hash[String, Tainted[String]]"
@@ -47,6 +49,8 @@ void lily_server_Tainted_sanitize(lily_state *);
 void lily_server__write(lily_state *);
 void lily_server__write_literal(lily_state *);
 void lily_server__write_unsafe(lily_state *);
+void lily_server__response_add_header(lily_state *);
+void lily_server__response_unset_header(lily_state *);
 void lily_server_var_env(lily_state *);
 void lily_server_var_get(lily_state *);
 void lily_server_var_request_headers(lily_state *);
@@ -61,11 +65,13 @@ void *lily_server_loader(lily_state *s, int id)
         case toplevel_OFFSET + 0: return lily_server__write;
         case toplevel_OFFSET + 1: return lily_server__write_literal;
         case toplevel_OFFSET + 2: return lily_server__write_unsafe;
-        case toplevel_OFFSET + 3: lily_server_var_env(s); return NULL;
-        case toplevel_OFFSET + 4: lily_server_var_get(s); return NULL;
-        case toplevel_OFFSET + 5: lily_server_var_request_headers(s); return NULL;
-        case toplevel_OFFSET + 6: lily_server_var_http_method(s); return NULL;
-        case toplevel_OFFSET + 7: lily_server_var_post(s); return NULL;
+        case toplevel_OFFSET + 3: return lily_server__response_add_header;
+        case toplevel_OFFSET + 4: return lily_server__response_unset_header;
+        case toplevel_OFFSET + 5: lily_server_var_env(s); return NULL;
+        case toplevel_OFFSET + 6: lily_server_var_get(s); return NULL;
+        case toplevel_OFFSET + 7: lily_server_var_request_headers(s); return NULL;
+        case toplevel_OFFSET + 8: lily_server_var_http_method(s); return NULL;
+        case toplevel_OFFSET + 9: lily_server_var_post(s); return NULL;
         default: return NULL;
     }
 }
@@ -313,4 +319,58 @@ never reasonably contain html entities.
 void lily_server__write_unsafe(lily_state *s)
 {
     ap_rputs(lily_arg_string_raw(s, 0), (request_rec *)lily_config_get(s)->data);
+}
+
+/**
+define response_add_header(key: String, value: String)
+
+This adds the `value` to the `key` header. If this header has a value already set,
+it will **not** overwrite the previous value, but instead appends it. If you want to
+discard the original value, please use `response_unset_header(key)` before.
+
+# Errors:
+* `ValueError` if `key` is an empty string.
+*/
+void lily_server__response_add_header(lily_state *s)
+{
+    const char *key = lily_arg_string_raw(s, 0);
+    const char *value = lily_arg_string_raw(s, 1);
+
+    // Ensure that the header key is not empty. Its value on the other hand maybe
+    // be empty, therefore no checks are made for this.
+    if (strcmp(key, "") == 0) {
+        lily_ValueError(s, "The provided header key must no be empty");
+        return;
+    }
+
+    // TODO: check if header have already been sent?
+
+    apr_table_t *http_headers = ((request_rec *)lily_config_get(s)->data)->headers_out;
+    apr_table_add(http_headers, key, value);
+}
+
+/**
+define response_unset_header(key: String)
+
+Remove the header `key` and all of its values from the response. If no such header
+exists, this method will not raise an exception but instead be a no-op.
+
+# Errors:
+* `ValueError` if `key` is an empty string.
+*/
+void lily_server__response_unset_header(lily_state *s)
+{
+    const char *key = lily_arg_string_raw(s, 0);
+
+    // Ensure that the header key is not empty.
+    if (strcmp(key, "") == 0) {
+        lily_ValueError(s, "The provided header key must no be empty");
+        return;
+    }
+
+    // TODO: check if header have already been sent?
+
+    apr_table_t *http_headers = ((request_rec *)lily_config_get(s)->data)->headers_out;
+    // If the table does not contain `key`, this will be a no-op.
+    apr_table_unset(http_headers, key);
 }
