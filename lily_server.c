@@ -32,7 +32,7 @@ const char *lily_server_table[] = {
     ,"F\0write_literal\0(String)"
     ,"F\0write_unsafe\0(String)"
     ,"F\0response_add_header\0(String,String)"
-    ,"F\0response_unset_header\0(String)"
+    ,"F\0response_remove_header\0(String)"
     ,"R\0env\0Hash[String, Tainted[String]]"
     ,"R\0get\0Hash[String, Tainted[String]]"
     ,"R\0request_headers\0Hash[String, Tainted[String]]"
@@ -50,7 +50,7 @@ void lily_server__write(lily_state *);
 void lily_server__write_literal(lily_state *);
 void lily_server__write_unsafe(lily_state *);
 void lily_server__response_add_header(lily_state *);
-void lily_server__response_unset_header(lily_state *);
+void lily_server__response_remove_header(lily_state *);
 void lily_server_var_env(lily_state *);
 void lily_server_var_get(lily_state *);
 void lily_server_var_request_headers(lily_state *);
@@ -66,7 +66,7 @@ void *lily_server_loader(lily_state *s, int id)
         case toplevel_OFFSET + 1: return lily_server__write_literal;
         case toplevel_OFFSET + 2: return lily_server__write_unsafe;
         case toplevel_OFFSET + 3: return lily_server__response_add_header;
-        case toplevel_OFFSET + 4: return lily_server__response_unset_header;
+        case toplevel_OFFSET + 4: return lily_server__response_remove_header;
         case toplevel_OFFSET + 5: lily_server_var_env(s); return NULL;
         case toplevel_OFFSET + 6: lily_server_var_get(s); return NULL;
         case toplevel_OFFSET + 7: lily_server_var_request_headers(s); return NULL;
@@ -326,7 +326,7 @@ define response_add_header(key: String, value: String)
 
 This adds the `value` to the `key` header. If this header has a value already set,
 it will **not** overwrite the previous value, but instead appends it. If you want to
-discard the original value, please use `response_unset_header(key)` before.
+discard the original value, please use `response_remove_header(key)` before.
 
 # Errors:
 * `ValueError` if `key` is an empty string.
@@ -350,7 +350,7 @@ void lily_server__response_add_header(lily_state *s)
 }
 
 /**
-define response_unset_header(key: String)
+define response_remove_header(key: String)
 
 Remove the header `key` and all of its values from the response. If no such header
 exists, this method will not raise an exception but instead be a no-op.
@@ -358,7 +358,7 @@ exists, this method will not raise an exception but instead be a no-op.
 # Errors:
 * `ValueError` if `key` is an empty string.
 */
-void lily_server__response_unset_header(lily_state *s)
+void lily_server__response_remove_header(lily_state *s)
 {
     const char *key = lily_arg_string_raw(s, 0);
 
