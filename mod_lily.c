@@ -13,6 +13,11 @@ typedef struct {
     int show_traceback;
 } lily_config_rec;
 
+typedef struct {
+    int header_sent;
+    request_rec *request;
+} req_config;
+
 module AP_MODULE_DECLARE_DATA lily_module;
 
 static int lily_handler(request_rec *r)
@@ -27,8 +32,12 @@ static int lily_handler(request_rec *r)
 
     lily_config config;
 
+    req_config r_config;
+    r_config->header_sent = 0;
+    r_config->request = r;
+
     lily_config_init(&config);
-    config.data = r;
+    config.data = r_config;
     config.render_func = (lily_render_func)ap_rputs;
 
     lily_state *state = lily_new_state(&config);
