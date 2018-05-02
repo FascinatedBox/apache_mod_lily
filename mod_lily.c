@@ -6,8 +6,8 @@
 
 #include "lily.h"
 
-extern const char *lily_server_table[];
-void *lily_server_loader(lily_state *, int);
+extern const char *lily_server_info_table[];
+extern void *lily_server_call_table;
 
 typedef struct {
     int show_traceback;
@@ -32,7 +32,8 @@ static int lily_handler(request_rec *r)
     config.render_func = (lily_render_func)ap_rputs;
 
     lily_state *state = lily_new_state(&config);
-    lily_module_register(state, "server", lily_server_table, lily_server_loader);
+    lily_module_register(state, "server", lily_server_info_table,
+            lily_server_call_table);
 
     int result = lily_render_file(state, r->filename);
     lily_msgbuf *msgbuf = lily_msgbuf_get(state);

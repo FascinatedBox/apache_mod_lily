@@ -19,7 +19,7 @@ as functions for sending data through the Apache server.
 
 #define ID_Tainted(state) lily_cid_at(state, 1)
 
-const char *lily_server_table[] = {
+const char *lily_server_info_table[] = {
     "\02HtmlString\0Tainted\0"
     ,"N\02HtmlString\0"
     ,"m\0<new>\0(String): HtmlString"
@@ -52,23 +52,24 @@ void lily_server_var_get(lily_state *);
 void lily_server_var_request_headers(lily_state *);
 void lily_server_var_http_method(lily_state *);
 void lily_server_var_post(lily_state *);
-void *lily_server_loader(lily_state *s, int id)
-{
-    switch (id) {
-        case HtmlString_OFFSET + 1: return lily_server_HtmlString_new;
-        case Tainted_OFFSET + 1: return lily_server_Tainted_new;
-        case Tainted_OFFSET + 2: return lily_server_Tainted_sanitize;
-        case toplevel_OFFSET + 0: return lily_server__write;
-        case toplevel_OFFSET + 1: return lily_server__write_literal;
-        case toplevel_OFFSET + 2: return lily_server__write_unsafe;
-        case toplevel_OFFSET + 3: lily_server_var_env(s); return NULL;
-        case toplevel_OFFSET + 4: lily_server_var_get(s); return NULL;
-        case toplevel_OFFSET + 5: lily_server_var_request_headers(s); return NULL;
-        case toplevel_OFFSET + 6: lily_server_var_http_method(s); return NULL;
-        case toplevel_OFFSET + 7: lily_server_var_post(s); return NULL;
-        default: return NULL;
-    }
-}
+void (*lily_server_call_table[])(lily_state *s) = {
+    NULL,
+    NULL,
+    lily_server_HtmlString_new,
+    NULL,
+    NULL,
+    lily_server_Tainted_new,
+    lily_server_Tainted_sanitize,
+    NULL,
+    lily_server__write,
+    lily_server__write_literal,
+    lily_server__write_unsafe,
+    lily_server_var_env,
+    lily_server_var_get,
+    lily_server_var_request_headers,
+    lily_server_var_http_method,
+    lily_server_var_post,
+};
 /** End autogen section. **/
 
 typedef struct {
