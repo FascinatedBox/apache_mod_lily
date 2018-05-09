@@ -7,7 +7,7 @@
 #include "lily.h"
 
 extern const char *lily_server_info_table[];
-extern void *lily_server_call_table;
+extern lily_call_entry_func lily_server_call_table[];
 
 typedef struct {
     int show_traceback;

@@ -38,9 +38,6 @@ const char *lily_server_info_table[] = {
     ,"R\0post\0Hash[String, Tainted[String]]"
     ,"Z"
 };
-#define HtmlString_OFFSET 1
-#define Tainted_OFFSET 4
-#define toplevel_OFFSET 8
 void lily_server_HtmlString_new(lily_state *);
 void lily_server_Tainted_new(lily_state *);
 void lily_server_Tainted_sanitize(lily_state *);
@@ -52,7 +49,7 @@ void lily_server_var_get(lily_state *);
 void lily_server_var_request_headers(lily_state *);
 void lily_server_var_http_method(lily_state *);
 void lily_server_var_post(lily_state *);
-void (*lily_server_call_table[])(lily_state *s) = {
+lily_call_entry_func lily_server_call_table[] = {
     NULL,
     NULL,
     lily_server_HtmlString_new,
