@@ -1,5 +1,5 @@
 {
-    "version": "v0.1.0",
+    "version": "v0.1.1",
     "summary": "Basic bridge to allow Lily to communicate with Apache.",
     "source": "https://github.com/FascinatedBox/lily-apache",
     "license": "MIT",
